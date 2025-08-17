@@ -41,19 +41,26 @@ namespace FanaticsDemoAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult<OffsetPrinter> CreateMachine([FromBody] OffsetPrinter newMachine)
+        public ActionResult<OffsetPrinter> CreateMachine(AddPrinterDto AddPrinterDto)
         {
-            if (newMachine == null || string.IsNullOrEmpty(newMachine.PrinterId))
+            OffsetPrinter newMachine = new OffsetPrinter();
+
+            if (AddPrinterDto.MachineName == null || AddPrinterDto.MachineLocation == null || AddPrinterDto.MachineDescription == null)
             {
-                return BadRequest("Invalid machine data.");
+                return BadRequest("Invalid machine data. Please enter MachineName, MachineLocation and MachineDescription");
             }
 
-            var existingMachine = _mockData.GetOffsetPrinters().FirstOrDefault(p => p.PrinterId == newMachine.PrinterId);
+            newMachine.Name = AddPrinterDto.MachineName.Trim();
+            newMachine.Location = AddPrinterDto.MachineLocation.Trim();
+            newMachine.Description = AddPrinterDto.MachineDescription.Trim();
+
+            var existingMachine = _mockData.GetOffsetPrinters().FirstOrDefault(p => p.Name == newMachine.Name);
 
             if (existingMachine != null)
             {
-                return Conflict($"Machine with ID {newMachine.PrinterId} already exists.");
+                return Conflict($"Machine with ID {newMachine.Name} already exists.");
             }
+
             _mockData.AddOffsetPrinter(newMachine);
 
             return CreatedAtAction(nameof(GetMachine), new { id = newMachine.PrinterId }, newMachine);
