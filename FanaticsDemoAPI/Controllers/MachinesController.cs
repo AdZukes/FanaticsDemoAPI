@@ -41,6 +41,13 @@ namespace FanaticsDemoAPI.Controllers
         }
 
         [HttpPost]
+        public ActionResult LoadSampleData()
+        {
+            var offsetPrinters = _mockData.GetOffsetPrinters();
+            return Ok("Sample data loaded successfully.");
+        }
+
+        [HttpPost]
         public ActionResult<OffsetPrinter> CreateMachine(AddPrinterDto AddPrinterDto)
         {
             OffsetPrinter newMachine = new OffsetPrinter();

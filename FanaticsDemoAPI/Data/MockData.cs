@@ -4,11 +4,11 @@ namespace FanaticsDemoAPI.Data
 {
     public class MockData
     {
+     
         public List<OffsetPrinter> PrinterList { get; set; } = new List<OffsetPrinter>();
 
         public List<OffsetPrinter> GetOffsetPrinters()
         {
-            //var printers = new List<OffsetPrinter>();
             var rand = new Random();
 
             for (int i = 1; i <= 10; i++)
