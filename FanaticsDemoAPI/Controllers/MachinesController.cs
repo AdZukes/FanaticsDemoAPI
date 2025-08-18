@@ -127,7 +127,7 @@ namespace FanaticsDemoAPI.Controllers
         }
 
         [HttpPost("{id}/status")]
-        public ActionResult<OffsetPrinter> LogMachineStatus(string id, string printerstatus)
+        public ActionResult<OffsetPrinter> LogMachineStatus(string id, string printerstatus, DateTime printerstatustimestamp)
         {
             var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id).FirstOrDefault();
 
@@ -137,6 +137,7 @@ namespace FanaticsDemoAPI.Controllers
             }
 
             offsetPrinter.Status = printerstatus.Trim(); // Simulate a status update
+            offsetPrinter.StatusTimestamp = printerstatustimestamp;
             _context.SaveChanges();
 
             return Ok(offsetPrinter);

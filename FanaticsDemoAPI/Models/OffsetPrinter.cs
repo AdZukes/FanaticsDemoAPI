@@ -24,5 +24,9 @@ namespace FanaticsDemoAPI.Models
         public List<MaintenanceEvent> MaintenanceEvents { get; set; } = new List<MaintenanceEvent>();
         public List<PrinterError> Errors { get; set; } = new List<PrinterError>();
         public string Status { get; set; }
+
+        public DateTime StatusTimestamp { get; set; }
+        public DateTime CreationDate { get; set; }
+        public DateTime LastUpdateDate { get; set; }
     }
 }

@@ -49,7 +49,11 @@ namespace FanaticsDemoAPI.Data
                         Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
                     }
                 },
-                    Status = "Operational"
+                    Status = "Operational",
+                    StatusTimestamp = DateTime.Now,
+                    CreationDate = DateTime.Now.AddDays(-rand.Next(1, 30)),
+                    LastUpdateDate = DateTime.Now.AddDays(-rand.Next(1, 30))
+
                 });
 
             }

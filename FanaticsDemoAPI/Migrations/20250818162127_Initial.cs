@@ -31,7 +31,10 @@ namespace FanaticsDemoAPI.Migrations
                     PaperWasteKg = table.Column<double>(type: "float", nullable: false),
                     Downtime = table.Column<TimeSpan>(type: "time", nullable: false),
                     EnergyConsumptionKWh = table.Column<double>(type: "float", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    StatusTimestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdateDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FanaticsDemoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250817223654_Initial")]
+    [Migration("20250818162127_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -56,6 +56,9 @@ namespace FanaticsDemoAPI.Migrations
                     b.Property<string>("PrinterId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -87,6 +90,9 @@ namespace FanaticsDemoAPI.Migrations
                     b.Property<DateTime>("JobStartTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("LastUpdateDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -109,6 +115,9 @@ namespace FanaticsDemoAPI.Migrations
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StatusTimestamp")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("TotalPagesPrinted")
                         .HasColumnType("int");
