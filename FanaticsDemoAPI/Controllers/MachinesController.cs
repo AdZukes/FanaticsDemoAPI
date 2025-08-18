@@ -75,7 +75,7 @@ namespace FanaticsDemoAPI.Controllers
                 return Conflict($"Machine with ID {newMachine.Name} already exists.");
             }
 
-            
+
             int nextPrinterNumber = MachineList.Count() + 1;
             var rand = new Random();
 
@@ -117,9 +117,43 @@ namespace FanaticsDemoAPI.Controllers
                 }
             };
 
-            newMachine.Status = "Operational";
-      
-    
+            newMachine.Statuses = new List<PrinterStatus>
+            {
+                new PrinterStatus
+                {
+                    StatusId = $"S{nextPrinterNumber:D3}",
+                    Message = "running",
+                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
+                },
+                new PrinterStatus
+                {
+                    StatusId = $"S{nextPrinterNumber:D3}",
+                    Message = "error",
+                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
+                },
+                new PrinterStatus
+                {
+                    StatusId = $"S{nextPrinterNumber:D3}",
+                    Message = "idle",
+                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
+                },
+                new PrinterStatus
+                {
+                    StatusId = $"S{nextPrinterNumber:D3}",
+                    Message = "maintenance",
+                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
+                },
+                new PrinterStatus
+                {
+                    StatusId = $"S{nextPrinterNumber:D3}",
+                    Message = "running",
+                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
+                }
+
+            };
+
+
+
             _context.OffsetPrinters.Add(newMachine);
             _context.SaveChanges();
 
@@ -136,8 +170,8 @@ namespace FanaticsDemoAPI.Controllers
                 return NotFound($"Machine with ID {id} not found.");
             }
 
-            offsetPrinter.Status = printerstatus.Trim(); // Simulate a status update
-            offsetPrinter.StatusTimestamp = printerstatustimestamp;
+            //offsetPrinter.Status = printerstatus.Trim(); // Simulate a status update
+            //offsetPrinter.StatusTimestamp = printerstatustimestamp;
             _context.SaveChanges();
 
             return Ok(offsetPrinter);
@@ -158,7 +192,7 @@ namespace FanaticsDemoAPI.Controllers
             {
                 PrinterId = offsetPrinter.PrinterId,
                 MachineName = offsetPrinter.Name,
-                Status = offsetPrinter.Status
+                //Status = offsetPrinter.Status
             };
 
             return Ok(printerStatus);

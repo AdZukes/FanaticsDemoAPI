@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FanaticsDemoAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Initital : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,8 +31,6 @@ namespace FanaticsDemoAPI.Migrations
                     PaperWasteKg = table.Column<double>(type: "float", nullable: false),
                     Downtime = table.Column<TimeSpan>(type: "time", nullable: false),
                     EnergyConsumptionKWh = table.Column<double>(type: "float", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StatusTimestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastUpdateDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -80,6 +78,25 @@ namespace FanaticsDemoAPI.Migrations
                         principalColumn: "PrinterId");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PrinterStatuses",
+                columns: table => new
+                {
+                    StatusId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OffsetPrinterPrinterId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PrinterStatuses", x => x.StatusId);
+                    table.ForeignKey(
+                        name: "FK_PrinterStatuses_OffsetPrinters_OffsetPrinterPrinterId",
+                        column: x => x.OffsetPrinterPrinterId,
+                        principalTable: "OffsetPrinters",
+                        principalColumn: "PrinterId");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_MaintenanceEvents_OffsetPrinterPrinterId",
                 table: "MaintenanceEvents",
@@ -88,6 +105,11 @@ namespace FanaticsDemoAPI.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_PrinterErrors_OffsetPrinterPrinterId",
                 table: "PrinterErrors",
+                column: "OffsetPrinterPrinterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PrinterStatuses_OffsetPrinterPrinterId",
+                table: "PrinterStatuses",
                 column: "OffsetPrinterPrinterId");
         }
 
@@ -99,6 +121,9 @@ namespace FanaticsDemoAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "PrinterErrors");
+
+            migrationBuilder.DropTable(
+                name: "PrinterStatuses");
 
             migrationBuilder.DropTable(
                 name: "OffsetPrinters");

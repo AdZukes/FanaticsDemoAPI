@@ -12,6 +12,8 @@ namespace FanaticsDemoAPI.Data
         public DbSet<OffsetPrinter> OffsetPrinters { get; set; }
         public DbSet<MaintenanceEvent> MaintenanceEvents { get; set; }
         public DbSet<PrinterError> PrinterErrors { get; set; }
+
+        public DbSet<PrinterStatus> PrinterStatuses { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

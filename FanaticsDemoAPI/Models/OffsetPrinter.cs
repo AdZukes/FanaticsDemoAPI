@@ -23,9 +23,7 @@ namespace FanaticsDemoAPI.Models
         public double EnergyConsumptionKWh { get; set; }
         public List<MaintenanceEvent> MaintenanceEvents { get; set; } = new List<MaintenanceEvent>();
         public List<PrinterError> Errors { get; set; } = new List<PrinterError>();
-        public string Status { get; set; }
-
-        public DateTime StatusTimestamp { get; set; }
+        public List<PrinterStatus> Statuses { get; set; } = new List<PrinterStatus>();
         public DateTime CreationDate { get; set; }
         public DateTime LastUpdateDate { get; set; }
     }

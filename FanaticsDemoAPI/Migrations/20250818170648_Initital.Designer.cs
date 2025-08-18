@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FanaticsDemoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250818162127_Initial")]
-    partial class Initial
+    [Migration("20250818170648_Initital")]
+    partial class Initital
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,13 +112,6 @@ namespace FanaticsDemoAPI.Migrations
                     b.Property<double>("PaperWasteKg")
                         .HasColumnType("float");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("StatusTimestamp")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("TotalPagesPrinted")
                         .HasColumnType("int");
 
@@ -149,6 +142,28 @@ namespace FanaticsDemoAPI.Migrations
                     b.ToTable("PrinterErrors");
                 });
 
+            modelBuilder.Entity("FanaticsDemoAPI.Models.PrinterStatus", b =>
+                {
+                    b.Property<string>("StatusId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OffsetPrinterPrinterId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("StatusId");
+
+                    b.HasIndex("OffsetPrinterPrinterId");
+
+                    b.ToTable("PrinterStatuses");
+                });
+
             modelBuilder.Entity("FanaticsDemoAPI.Models.MaintenanceEvent", b =>
                 {
                     b.HasOne("FanaticsDemoAPI.Models.OffsetPrinter", null)
@@ -163,11 +178,20 @@ namespace FanaticsDemoAPI.Migrations
                         .HasForeignKey("OffsetPrinterPrinterId");
                 });
 
+            modelBuilder.Entity("FanaticsDemoAPI.Models.PrinterStatus", b =>
+                {
+                    b.HasOne("FanaticsDemoAPI.Models.OffsetPrinter", null)
+                        .WithMany("Statuses")
+                        .HasForeignKey("OffsetPrinterPrinterId");
+                });
+
             modelBuilder.Entity("FanaticsDemoAPI.Models.OffsetPrinter", b =>
                 {
                     b.Navigation("Errors");
 
                     b.Navigation("MaintenanceEvents");
+
+                    b.Navigation("Statuses");
                 });
 #pragma warning restore 612, 618
         }
