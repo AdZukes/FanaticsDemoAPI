@@ -2,6 +2,7 @@
 using FanaticsDemoAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FanaticsDemoAPI.Controllers
 {
@@ -38,13 +39,13 @@ namespace FanaticsDemoAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<OffsetPrinter> GetMachine(string id)
+        public ActionResult<OffsetPrinter> GetMachine(string printerId)
         {
-            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id).FirstOrDefault();
+            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == printerId).FirstOrDefault();
 
             if (offsetPrinter == null)
             {
-                return NotFound($"Machine with ID {id} not found.");
+                return NotFound($"Machine with ID {printerId} not found.");
             }
 
             return Ok(offsetPrinter);
@@ -53,9 +54,9 @@ namespace FanaticsDemoAPI.Controllers
 
 
         [HttpPost]
-        public ActionResult<OffsetPrinter> CreateMachine(AddPrinterDto AddPrinterDto)
+        public ActionResult<OffsetPrinter> CreateMachine(AddPrinterDto AddPrinter)
         {
-            if (AddPrinterDto.MachineName == null || AddPrinterDto.MachineLocation == null || AddPrinterDto.MachineDescription == null)
+            if (AddPrinter.MachineName == null || AddPrinter.MachineLocation == null || AddPrinter.MachineDescription == null)
             {
                 return BadRequest("Invalid machine data. Please enter MachineName, MachineLocation and MachineDescription");
             }
@@ -64,9 +65,9 @@ namespace FanaticsDemoAPI.Controllers
 
             OffsetPrinter newMachine = new OffsetPrinter();
 
-            newMachine.Name = AddPrinterDto.MachineName.Trim();
-            newMachine.Location = AddPrinterDto.MachineLocation.Trim();
-            newMachine.Description = AddPrinterDto.MachineDescription.Trim();
+            newMachine.Name = AddPrinter.MachineName.Trim();
+            newMachine.Location = AddPrinter.MachineLocation.Trim();
+            newMachine.Description = AddPrinter.MachineDescription.Trim();
 
             var existingMachine = MachineList.FirstOrDefault(p => p.Name == newMachine.Name);
 
@@ -96,63 +97,6 @@ namespace FanaticsDemoAPI.Controllers
             newMachine.Downtime = TimeSpan.FromMinutes(rand.Next(0, 120));
             newMachine.EnergyConsumptionKWh = Math.Round(rand.NextDouble() * 200, 2);
 
-            newMachine.MaintenanceEvents = new List<MaintenanceEvent>
-            {
-                new MaintenanceEvent
-                {
-                    EventId = $"ME{nextPrinterNumber:D3}",
-                    Timestamp = DateTime.Now.AddDays(-rand.Next(1, 10)),
-                    Description = "Routine check",
-                    Technician = "Tech A"
-                }
-            };
-
-            newMachine.Errors = new List<PrinterError>
-            {
-                new PrinterError
-                {
-                    ErrorCodeId = $"E{nextPrinterNumber:D3}",
-                    Message = "Minor error",
-                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
-                }
-            };
-
-            newMachine.Statuses = new List<PrinterStatus>
-            {
-                new PrinterStatus
-                {
-                    StatusId = $"S{nextPrinterNumber:D3}",
-                    Message = "running",
-                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
-                },
-                new PrinterStatus
-                {
-                    StatusId = $"S{nextPrinterNumber:D3}",
-                    Message = "error",
-                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
-                },
-                new PrinterStatus
-                {
-                    StatusId = $"S{nextPrinterNumber:D3}",
-                    Message = "idle",
-                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
-                },
-                new PrinterStatus
-                {
-                    StatusId = $"S{nextPrinterNumber:D3}",
-                    Message = "maintenance",
-                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
-                },
-                new PrinterStatus
-                {
-                    StatusId = $"S{nextPrinterNumber:D3}",
-                    Message = "running",
-                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
-                }
-
-            };
-
-
 
             _context.OffsetPrinters.Add(newMachine);
             _context.SaveChanges();
@@ -161,17 +105,28 @@ namespace FanaticsDemoAPI.Controllers
         }
 
         [HttpPost("{id}/status")]
-        public ActionResult<OffsetPrinter> LogMachineStatus(string id, string printerstatus, DateTime printerstatustimestamp)
+        public ActionResult<OffsetPrinter> LogMachineStatus(string printerId, string printerStatus, DateTime printerStatusTimestamp)
         {
-            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id).FirstOrDefault();
+            if (printerId == null || printerStatus == null)
+            {
+                return BadRequest("Invalid machine data. Please enter printerId, printerStatus, printerStatusTimestamp");
+            }
+            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == printerId.Trim()).FirstOrDefault();
 
             if (offsetPrinter == null)
             {
-                return NotFound($"Machine with ID {id} not found.");
+                return NotFound($"Machine with ID {printerId} not found.");
             }
 
-            //offsetPrinter.Status = printerstatus.Trim(); // Simulate a status update
-            //offsetPrinter.StatusTimestamp = printerstatustimestamp;
+            var PrinterStatusCount = _context.PrinterStatuses.Count(p => p.StatusId.StartsWith(printerId));
+
+            PrinterStatus newStatus = new PrinterStatus
+            {
+                StatusId = $"{printerId}-{PrinterStatusCount + 1}",
+                Message = printerStatus.Trim(),
+                Timestamp = printerStatusTimestamp
+            };
+
             _context.SaveChanges();
 
             return Ok(offsetPrinter);
@@ -179,23 +134,23 @@ namespace FanaticsDemoAPI.Controllers
         }
 
         [HttpGet("{id}/getstatus")]
-        public ActionResult<OffsetPrinter> LogMachineStatus(string id)
+        public ActionResult<OffsetPrinter> LogMachineStatus(string printerId)
         {
-            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id).FirstOrDefault();
+            var sta = _context.PrinterStatuses.Where(p =>p.StatusId.StartsWith(printerId)).OrderByDescending(p => p.Timestamp).ToList();
+
+
+            var offsetPrinter = _context.OffsetPrinters
+                .Include(p =>p.Statuses
+                .OrderByDescending(p =>p.Timestamp)
+                .Take(2))
+                .Where(p => p.PrinterId == printerId).FirstOrDefault();
 
             if (offsetPrinter == null)
             {
-                return NotFound($"Machine with ID {id} not found.");
+                return NotFound($"Machine with ID {printerId} not found.");
             }
 
-            PrinterStatusDto printerStatus = new PrinterStatusDto
-            {
-                PrinterId = offsetPrinter.PrinterId,
-                MachineName = offsetPrinter.Name,
-                //Status = offsetPrinter.Status
-            };
-
-            return Ok(printerStatus);
+            return Ok(offsetPrinter);
 
         }
 

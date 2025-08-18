@@ -35,7 +35,6 @@ namespace FanaticsDemoAPI.Data
                         new MaintenanceEvent
                         {
                             EventId = $"ME{i:D3}",
-                            //PrinterId = $"PRN{i:D3}",
                             Timestamp = DateTime.Now.AddDays(-rand.Next(1, 10)),
                             Description = "Routine check",
                             Technician = "Tech A"
@@ -46,7 +45,6 @@ namespace FanaticsDemoAPI.Data
                         new PrinterError
                         {
                             ErrorCodeId = $"E{i:D3}",
-                            //PrinterId = $"PRN{i:D3}",
                             Message = "Minor error",
                             Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
                         }
@@ -55,36 +53,31 @@ namespace FanaticsDemoAPI.Data
                     {
                         new PrinterStatus
                         {
-                            StatusId = $"PRN{i:D3}" + "-" + $"S{i:D3}" + "-1",
-                            //PrinterId = $"PRN{i:D3}",
+                            StatusId = $"PRN{i:D3}" + "-1",
                             Message = "running",
                             Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
                         },
                         new PrinterStatus
                         {
-                            StatusId = $"PRN{i:D3}" + "-" + $"S{i:D3}" + "-2",
-                            //PrinterId = $"PRN{i:D3}",
+                            StatusId = $"PRN{i:D3}" + "-2",
                             Message = "error",
                             Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
                         },
                         new PrinterStatus
                         {
-                            StatusId = $"PRN{i:D3}" + "-" + $"S{i:D3}" + "-3",
-                            //PrinterId = $"PRN{i:D3}",
+                            StatusId = $"PRN{i:D3}" + "-3",
                             Message = "idle",
                             Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
                         },
                         new PrinterStatus
                         {
-                            StatusId = $"PRN{i:D3}" + "-" + $"S{i:D3}" + "-4",
-                            //PrinterId = $"PRN{i:D3}",
+                            StatusId = $"PRN{i:D3}" + "-4",
                             Message = "maintenance",
                             Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
                         },
                         new PrinterStatus
                         {
-                            StatusId = $"PRN{i:D3}" + "-" + $"S{i:D3}" + "-5",
-                            //PrinterId = $"PRN{i:D3}",
+                            StatusId = $"PRN{i:D3}" + "-5",
                             Message = "running",
                             Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
                         }
