@@ -16,7 +16,7 @@ namespace FanaticsDemoAPI.Controllers
         {
             _mockData = mockData;
             _context = context;
-            InitializeDatabase();
+            InitializeDatabase(); // Ensure the database is initialized with mock data
         }
 
         private void InitializeDatabase()
@@ -97,25 +97,25 @@ namespace FanaticsDemoAPI.Controllers
             newMachine.EnergyConsumptionKWh = Math.Round(rand.NextDouble() * 200, 2);
 
             newMachine.MaintenanceEvents = new List<MaintenanceEvent>
+            {
+                new MaintenanceEvent
                 {
-                    new MaintenanceEvent
-                    {
-                        EventId = $"ME{nextPrinterNumber:D3}",
-                        Timestamp = DateTime.Now.AddDays(-rand.Next(1, 10)),
-                        Description = "Routine check",
-                        Technician = "Tech A"
-                    }
-                };
+                    EventId = $"ME{nextPrinterNumber:D3}",
+                    Timestamp = DateTime.Now.AddDays(-rand.Next(1, 10)),
+                    Description = "Routine check",
+                    Technician = "Tech A"
+                }
+            };
 
             newMachine.Errors = new List<PrinterError>
+            {
+                new PrinterError
                 {
-                    new PrinterError
-                    {
-                        ErrorCodeId = $"E{nextPrinterNumber:D3}",
-                        Message = "Minor error",
-                        Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
-                    }
-                };
+                    ErrorCodeId = $"E{nextPrinterNumber:D3}",
+                    Message = "Minor error",
+                    Timestamp = DateTime.Now.AddMinutes(-rand.Next(1, 60))
+                }
+            };
 
             newMachine.Status = "Operational";
       
@@ -126,8 +126,43 @@ namespace FanaticsDemoAPI.Controllers
             return CreatedAtAction(nameof(GetMachine), new { id = newMachine.PrinterId }, newMachine);
         }
 
+        [HttpPost("{id}/status")]
+        public ActionResult<OffsetPrinter> LogMachineStatus(string id, string printerstatus)
+        {
+            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id).FirstOrDefault();
 
+            if (offsetPrinter == null)
+            {
+                return NotFound($"Machine with ID {id} not found.");
+            }
 
+            offsetPrinter.Status = printerstatus.Trim(); // Simulate a status update
+            _context.SaveChanges();
+
+            return Ok(offsetPrinter);
+
+        }
+
+        [HttpGet("{id}/getstatus")]
+        public ActionResult<OffsetPrinter> LogMachineStatus(string id)
+        {
+            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id).FirstOrDefault();
+
+            if (offsetPrinter == null)
+            {
+                return NotFound($"Machine with ID {id} not found.");
+            }
+
+            PrinterStatusDto printerStatus = new PrinterStatusDto
+            {
+                PrinterId = offsetPrinter.PrinterId,
+                MachineName = offsetPrinter.Name,
+                Status = offsetPrinter.Status
+            };
+
+            return Ok(printerStatus);
+
+        }
 
 
     }
