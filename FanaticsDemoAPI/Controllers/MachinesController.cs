@@ -32,20 +32,30 @@ namespace FanaticsDemoAPI.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<OffsetPrinter>> GetMachines()
         {
-            var offsetPrinters = _context.OffsetPrinters.ToList();
+            var offsetPrinters = _context.OffsetPrinters
+            .Include(p => p.Statuses
+            .OrderByDescending(p => p.Timestamp)
+            .Take(1))
+            .ToList();
 
             return Ok(offsetPrinters);
 
         }
 
         [HttpGet("{id}")]
-        public ActionResult<OffsetPrinter> GetMachine(string printerId)
+        public ActionResult<OffsetPrinter> GetMachine(string id)
         {
-            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == printerId).FirstOrDefault();
+            //var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id).FirstOrDefault();
+
+            var offsetPrinter = _context.OffsetPrinters
+                .Include(p => p.Statuses
+                .OrderByDescending(p => p.Timestamp)
+                .Take(5))
+                .Where(p => p.PrinterId == id).FirstOrDefault();
 
             if (offsetPrinter == null)
             {
-                return NotFound($"Machine with ID {printerId} not found.");
+                return NotFound($"Machine with ID {id} not found.");
             }
 
             return Ok(offsetPrinter);
@@ -96,7 +106,8 @@ namespace FanaticsDemoAPI.Controllers
             newMachine.PaperWasteKg = Math.Round(rand.NextDouble() * 5, 2);
             newMachine.Downtime = TimeSpan.FromMinutes(rand.Next(0, 120));
             newMachine.EnergyConsumptionKWh = Math.Round(rand.NextDouble() * 200, 2);
-
+            newMachine.CreationDate = DateTime.Now;
+            newMachine.LastUpdateDate = DateTime.Now;
 
             _context.OffsetPrinters.Add(newMachine);
             _context.SaveChanges();
@@ -105,54 +116,55 @@ namespace FanaticsDemoAPI.Controllers
         }
 
         [HttpPost("{id}/status")]
-        public ActionResult<OffsetPrinter> LogMachineStatus(string printerId, string printerStatus, DateTime printerStatusTimestamp)
+        public ActionResult<OffsetPrinter> LogMachineStatus(string id, string printerStatus)
         {
-            if (printerId == null || printerStatus == null)
+            if (printerStatus == null)
             {
-                return BadRequest("Invalid machine data. Please enter printerId, printerStatus, printerStatusTimestamp");
+                return BadRequest("Invalid machine data. Please enter printerStatus, printerStatusTimestamp");
             }
-            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == printerId.Trim()).FirstOrDefault();
+            var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id.Trim()).FirstOrDefault();
 
             if (offsetPrinter == null)
             {
-                return NotFound($"Machine with ID {printerId} not found.");
+                return NotFound($"Machine with ID {id} not found.");
             }
 
-            var PrinterStatusCount = _context.PrinterStatuses.Count(p => p.StatusId.StartsWith(printerId));
+            var PrinterStatusCount = _context.PrinterStatuses.Count(p => p.StatusId.StartsWith(id));
 
             PrinterStatus newStatus = new PrinterStatus
             {
-                StatusId = $"{printerId}-{PrinterStatusCount + 1}",
+                StatusId = $"{id}-{PrinterStatusCount + 1}",
                 Message = printerStatus.Trim(),
-                Timestamp = printerStatusTimestamp
+                Timestamp = DateTime.Now
             };
 
+            offsetPrinter.Statuses.Add(newStatus);
             _context.SaveChanges();
 
             return Ok(offsetPrinter);
 
         }
 
-        [HttpGet("{id}/getstatus")]
-        public ActionResult<OffsetPrinter> LogMachineStatus(string printerId)
-        {
-            var sta = _context.PrinterStatuses.Where(p =>p.StatusId.StartsWith(printerId)).OrderByDescending(p => p.Timestamp).ToList();
+        //[HttpGet("{id}/getstatus")]
+        //public ActionResult<OffsetPrinter> LogMachineStatus(string id)
+        //{
+        //    var sta = _context.PrinterStatuses.Where(p =>p.StatusId.StartsWith(id)).OrderByDescending(p => p.Timestamp).ToList();
 
 
-            var offsetPrinter = _context.OffsetPrinters
-                .Include(p =>p.Statuses
-                .OrderByDescending(p =>p.Timestamp)
-                .Take(2))
-                .Where(p => p.PrinterId == printerId).FirstOrDefault();
+        //    var offsetPrinter = _context.OffsetPrinters
+        //        .Include(p =>p.Statuses
+        //        .OrderByDescending(p =>p.Timestamp)
+        //        .Take(2))
+        //        .Where(p => p.PrinterId == id).FirstOrDefault();
 
-            if (offsetPrinter == null)
-            {
-                return NotFound($"Machine with ID {printerId} not found.");
-            }
+        //    if (offsetPrinter == null)
+        //    {
+        //        return NotFound($"Machine with ID {id} not found.");
+        //    }
 
-            return Ok(offsetPrinter);
+        //    return Ok(offsetPrinter);
 
-        }
+        //}
 
 
     }
