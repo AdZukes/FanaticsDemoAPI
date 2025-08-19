@@ -131,11 +131,10 @@ namespace FanaticsDemoAPI.Controllers
             _context.OffsetPrinters.Add(newMachine);
             _context.SaveChanges();
 
-<<<<<<< HEAD
+
             return CreatedAtAction(nameof(RegisterMachine), new { id = newMachine.PrinterId }, newMachine);
-=======
-            return CreatedAtAction(nameof(MachineDetail), new { id = newMachine.PrinterId }, newMachine);
->>>>>>> fcdff1ffe0cc7c6e61be54c63dbfdc08338479e3
+
+
         }
 
 
