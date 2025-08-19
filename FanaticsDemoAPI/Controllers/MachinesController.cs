@@ -131,7 +131,7 @@ namespace FanaticsDemoAPI.Controllers
             _context.OffsetPrinters.Add(newMachine);
             _context.SaveChanges();
 
-            return CreatedAtAction(nameof(GetMachine), new { id = newMachine.PrinterId }, newMachine);
+            return CreatedAtAction(nameof(MachineDetail), new { id = newMachine.PrinterId }, newMachine);
         }
 
 
