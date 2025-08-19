@@ -29,9 +29,15 @@ namespace FanaticsDemoAPI.Controllers
             }
         }
 
+
         [HttpGet]
-        public ActionResult<IEnumerable<OffsetPrinter>> GetMachines()
+        public ActionResult<IEnumerable<OffsetPrinter>> MachineSummary()
         {
+
+            //======================================
+            //Requirement #3: View Machine Summary
+            //======================================
+
             var offsetPrinters = _context.OffsetPrinters
             .Include(p => p.Statuses
             .OrderByDescending(p => p.Timestamp)
@@ -41,6 +47,7 @@ namespace FanaticsDemoAPI.Controllers
             return Ok(offsetPrinters);
 
         }
+
 
         [HttpGet("{id}")]
         public ActionResult<OffsetPrinter> GetMachine(string id)
@@ -64,11 +71,16 @@ namespace FanaticsDemoAPI.Controllers
 
 
         [HttpPost]
-        public ActionResult<OffsetPrinter> CreateMachine(AddPrinterDto AddPrinter)
+        public ActionResult<OffsetPrinter> RegisterMachine(AddPrinterDto AddPrinter) //Tested by JWR 08/19/2025
         {
+            //======================================
+            //Requirement #1: Register a new machine
+            //======================================
+
+            //This validation is not required, this is captured by the models [Required] Annotation, but it is a good practice to validate the input data.
             if (AddPrinter.MachineName == null || AddPrinter.MachineLocation == null || AddPrinter.MachineDescription == null)
             {
-                return BadRequest("Invalid machine data. Please enter MachineName, MachineLocation and MachineDescription");
+                return BadRequest("Invalid machine data. Please enter Machine Name, Machine Location and Machine Description");
             }
 
             var MachineList = _context.OffsetPrinters.ToList();
@@ -79,7 +91,7 @@ namespace FanaticsDemoAPI.Controllers
             newMachine.Location = AddPrinter.MachineLocation.Trim();
             newMachine.Description = AddPrinter.MachineDescription.Trim();
 
-            var existingMachine = MachineList.FirstOrDefault(p => p.Name == newMachine.Name);
+            var existingMachine = MachineList.FirstOrDefault(p => p.Name == newMachine.Name.Trim());
 
             if (existingMachine != null)
             {
@@ -88,13 +100,14 @@ namespace FanaticsDemoAPI.Controllers
 
 
             int nextPrinterNumber = MachineList.Count() + 1;
-            var rand = new Random();
-
-
+            
             newMachine.PrinterId = $"PRN{nextPrinterNumber:D3}";
 
-            newMachine.Model = $"Model-{nextPrinterNumber}";
 
+            //======================== The following Mock Data is for Fanatics Demo purposes only ==========================
+            var rand = new Random();
+
+            newMachine.Model = $"Model-{nextPrinterNumber}";
             newMachine.JobId = $"JOB{nextPrinterNumber:D3}";
             newMachine.JobName = $"PrintJob{nextPrinterNumber}";
             newMachine.JobStartTime = DateTime.Now.AddHours(-rand.Next(1, 48));
@@ -106,6 +119,10 @@ namespace FanaticsDemoAPI.Controllers
             newMachine.PaperWasteKg = Math.Round(rand.NextDouble() * 5, 2);
             newMachine.Downtime = TimeSpan.FromMinutes(rand.Next(0, 120));
             newMachine.EnergyConsumptionKWh = Math.Round(rand.NextDouble() * 200, 2);
+
+            //====================== End Mock Data =================================================================
+
+
             newMachine.CreationDate = DateTime.Now;
             newMachine.LastUpdateDate = DateTime.Now;
 
@@ -115,13 +132,19 @@ namespace FanaticsDemoAPI.Controllers
             return CreatedAtAction(nameof(GetMachine), new { id = newMachine.PrinterId }, newMachine);
         }
 
+
         [HttpPost("{id}/status")]
-        public ActionResult<OffsetPrinter> LogMachineStatus(string id, string printerStatus)
+        public ActionResult<OffsetPrinter> LogMachineStatus(string id, string printerStatus) //Tested by JWR 08/19/2025
         {
+            //======================================
+            //Requirement #2: Log Machine Status
+            //======================================
+
             if (printerStatus == null)
             {
                 return BadRequest("Invalid machine data. Please enter printerStatus, printerStatusTimestamp");
             }
+
             var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id.Trim()).FirstOrDefault();
 
             if (offsetPrinter == null)
@@ -145,26 +168,7 @@ namespace FanaticsDemoAPI.Controllers
 
         }
 
-        //[HttpGet("{id}/getstatus")]
-        //public ActionResult<OffsetPrinter> LogMachineStatus(string id)
-        //{
-        //    var sta = _context.PrinterStatuses.Where(p =>p.StatusId.StartsWith(id)).OrderByDescending(p => p.Timestamp).ToList();
 
-
-        //    var offsetPrinter = _context.OffsetPrinters
-        //        .Include(p =>p.Statuses
-        //        .OrderByDescending(p =>p.Timestamp)
-        //        .Take(2))
-        //        .Where(p => p.PrinterId == id).FirstOrDefault();
-
-        //    if (offsetPrinter == null)
-        //    {
-        //        return NotFound($"Machine with ID {id} not found.");
-        //    }
-
-        //    return Ok(offsetPrinter);
-
-        //}
 
 
     }
