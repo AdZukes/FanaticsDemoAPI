@@ -31,7 +31,7 @@ namespace FanaticsDemoAPI.Controllers
 
 
         [HttpGet]
-        public ActionResult<IEnumerable<OffsetPrinter>> MachineSummary()
+        public ActionResult<IEnumerable<OffsetPrinter>> MachineSummary() //Tested by JWR 08/19/2025
         {
 
             //======================================
@@ -50,9 +50,11 @@ namespace FanaticsDemoAPI.Controllers
 
 
         [HttpGet("{id}")]
-        public ActionResult<OffsetPrinter> GetMachine(string id)
+        public ActionResult<OffsetPrinter> MachineDetail(string id) //Tested by JWR 08/19/2025
         {
-            //var offsetPrinter = _context.OffsetPrinters.Where(p => p.PrinterId == id).FirstOrDefault();
+            //======================================
+            //Requirement #4: View Machine Detail
+            //======================================
 
             var offsetPrinter = _context.OffsetPrinters
                 .Include(p => p.Statuses
